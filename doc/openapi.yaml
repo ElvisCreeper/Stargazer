@@ -1,0 +1,439 @@
+openapi: 3.0.0
+info:
+  title: Social Network API
+  description: Documentazione API per un social network
+  version: 1.0.0
+servers:
+  - url: localhost/social/api/v1
+tags:
+  - name: post
+    description: Everything about Posts
+  - name: user
+    description: Operations about user
+  - name: tab
+    description: Sections where posts are stored
+  - name: subjects
+    description: Sections where tabs are stored
+paths:
+  /posts:
+    get:
+      tags:
+        - post
+      summary: Restituisce tutti i post
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      tags:
+        - post
+      summary: Crea un nuovo post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '201':
+          description: Post creato con successo
+        '400':
+          description: Richiesta non valida
+  /posts/{postId}:
+    get:
+      tags:
+        - post
+      summary: Restituisce un post specifico
+      parameters:
+        - name: postId
+          in: path
+          description: ID del post da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post non trovato
+    put:
+      tags:
+        - post
+      summary: Aggiorna un post esistente
+      parameters:
+        - name: postId
+          in: path
+          description: ID del post da aggiornare
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '200':
+          description: Post aggiornato con successo
+        '404':
+          description: Post non trovato
+    delete:
+      tags:
+        - post
+      summary: Elimina un post esistente
+      parameters:
+        - name: postId
+          in: path
+          description: ID del post da eliminare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Post eliminato con successo
+        '404':
+          description: Post non trovato
+  /users:
+    get:
+      tags:
+        - user
+      summary: Restituisce tutti gli utenti
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - user
+      summary: Crea un nuovo utente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Utente creato con successo
+        '400':
+          description: Richiesta non valida
+  /users/{userId}:
+    get:
+      tags:
+        - user
+      summary: Restituisce un utente specifico
+      parameters:
+        - name: userId
+          in: path
+          description: ID dell'utente da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Utente non trovato
+    put:
+      tags:
+        - user
+      summary: Aggiorna un utente esistente
+      parameters:
+        - name: userId
+          in: path
+          description: ID dell'utente da aggiornare
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Utente aggiornato con successo
+        '404':
+          description: Utente non trovato
+    delete:
+      tags:
+        - user
+      summary: Elimina un utente esistente
+      parameters:
+        - name: userId
+          in: path
+          description: ID dell'utente da eliminare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Utente eliminato con successo
+        '404':
+          description: Utente non trovato
+  /tabs:
+    get:
+      tags:
+        - tab
+      summary: Restituisce tutte le tab
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tab'
+    post:
+      tags:
+        - tab
+      summary: Crea una nuova tab
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tab'
+      responses:
+        '201':
+          description: Tab creata con successo
+        '400':
+          description: Richiesta non valida
+  /tabs/{tabId}:
+    get:
+      tags:
+        - tab
+      summary: Restituisce una tab specifica
+      parameters:
+        - name: tabId
+          in: path
+          description: ID della tab da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tab'
+        '404':
+          description: Tab non trovata
+    put:
+      tags:
+        - tab
+      summary: Aggiorna una tab esistente
+      parameters:
+        - name: tabId
+          in: path
+          description: ID della tab da aggiornare
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tab'
+      responses:
+        '200':
+          description: Tab aggiornata con successo
+        '404':
+          description: Tab non trovata
+    delete:
+      tags:
+        - tab
+      summary: Elimina una tab esistente
+      parameters:
+        - name: tabId
+          in: path
+          description: ID della tab da eliminare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tab eliminata con successo
+        '404':
+          description: Tab non trovata
+  /subjects:
+    get:
+      tags:
+        - subjects
+      summary: Restituisce tutte le subjects
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subject'
+    post:
+      tags:
+        - subjects
+      summary: Crea una nuova subject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subject'
+      responses:
+        '201':
+          description: Subject creata con successo
+        '400':
+          description: Richiesta non valida
+  /subjects/{subjectId}:
+    get:
+      tags:
+        - subjects
+      summary: Restituisce una subject specifica
+      parameters:
+        - name: subjectId
+          in: path
+          description: ID della subject da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subject'
+        '404':
+          description: Subject non trovata
+    put:
+      tags:
+        - subjects
+      summary: Aggiorna una subject esistente
+      parameters:
+        - name: subjectId
+          in: path
+          description: ID della subject da aggiornare
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subject'
+      responses:
+        '200':
+          description: Subject aggiornata con successo
+        '404':
+          description: Subject non trovata
+    delete:
+      tags:
+        - subjects
+      summary: Elimina una subject esistente
+      parameters:
+        - name: subjectId
+          in: path
+          description: ID della subject da eliminare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Subject eliminata con successo
+        '404':
+          description: Subject non trovata
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        postId:
+          type: integer
+          description: ID del post
+        tabId:
+          type: integer
+          description: ID della tab
+        userId:
+          type: integer
+          description: ID dell'utente che ha postato
+        likes:
+          type: integer
+          description: Numero di likes
+        replyId:
+          type: integer
+          description: ID del post a cui questo post è una risposta (se è un commento)
+        date:
+          type: string
+          format: date-time
+          description: Data di pubblicazione del post
+    User:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: ID dell'utente
+        username:
+          type: string
+          description: Username dell'utente
+        profileImageUrl:
+          type: string
+          description: URL dell'immagine del profilo dell'utente
+        bio:
+          type: string
+          description: Bio dell'utente
+        createdAt:
+          type: string
+          format: date-time
+          description: Data di creazione dell'utente
+    Tab:
+      type: object
+      properties:
+        tabId:
+          type: integer
+          description: ID della tab
+        name:
+          type: string
+          description: Nome della tab
+        description:
+          type: string
+          description: Descrizione della tab
+        subjectId:
+          type: integer
+          description: ID della subject a cui appartiene la tab
+    Subject:
+      type: object
+      properties:
+        subjectId:
+          type: integer
+          description: ID della subject
+        name:
+          type: string
+          description: Nome della subject
+        description:
+          type: string
+          description: Descrizione della subject
