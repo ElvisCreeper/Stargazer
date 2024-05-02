@@ -37,18 +37,6 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Login'),
       ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text("utente"),
-              accountEmail: null,
-              currentAccountPicture: CircleAvatar(),
-            ),
-           SizedBox(height: 200, child: userListView),
-          ],
-        ),
-      ),
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(20.0),
@@ -108,12 +96,23 @@ class UserList extends ConsumerWidget {
         return Dismissible(
           key: ValueKey<int>(userList[index].id),
           child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'http://$ip/social/userImages/${userList[index].image}'),
-                onBackgroundImageError: (exception, stackTrace) => null,
-              ),
-              title: Text(userList[index].username)),
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(
+                  'http://$ip/social/userImages/${userList[index].image}'),
+              onBackgroundImageError: (exception, stackTrace) => null,
+            ),
+            title: Text(userList[index].username),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(
+                      user: userList[index],
+                    ),
+                  ));
+            },
+          ),
           onDismissed: (DismissDirection direction) =>
               _box.remove(userList[index].id),
         );
@@ -148,14 +147,13 @@ class AuthPage extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 20.0),
-                       TextField(
+                      TextField(
                         controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: 'Enter your password',
                           labelText: 'Password',
                           border: OutlineInputBorder(),
-                          
                         ),
                       ),
                       SizedBox(height: 20.0),
@@ -180,5 +178,36 @@ class AuthPage extends StatelessWidget {
                         child: Text('Register'),
                       ),
                     ]))));
+  }
+}
+
+class HomePage extends StatelessWidget {
+  User user;
+
+  HomePage({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Universe'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(user.username),
+              accountEmail: user.bio == null ? null : Text(user.bio!),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage:
+                    NetworkImage('http://$ip/social/userImages/${user.image}'),
+                onBackgroundImageError: (exception, stackTrace) => null,
+              ),
+            ),
+            SizedBox(height: 500, child: userListView),
+          ],
+        ),
+      ),
+    );
   }
 }

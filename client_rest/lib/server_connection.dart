@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'model.dart';
 
-String ip = "10.0.2.2";
+String ip = "192.168.4.56";
 
 Future<dynamic> register(String username, String password) async {
   var response = await http.post(
