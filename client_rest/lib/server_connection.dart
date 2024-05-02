@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'model.dart';
 
-String ip = "192.168.4.56";
+String ip = "10.0.2.2";
 
 Future<dynamic> register(String username, String password) async {
   var response = await http.post(
@@ -53,4 +53,15 @@ Future<dynamic> login(String username, String password) async {
     case 404:
       return "User does not exist";
   }
+}
+
+
+Future<List> getSubjects() async {
+   var response = await http.get(Uri.http(
+      ip, "social/api/subjects.php"));
+  switch (response.statusCode) {
+    case 200:
+      return  json.decode(response.body);
+  }
+  return [];
 }

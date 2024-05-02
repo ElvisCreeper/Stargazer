@@ -103,7 +103,7 @@ class UserList extends ConsumerWidget {
             ),
             title: Text(userList[index].username),
             onTap: () {
-              Navigator.pop(context);
+              //primo number1Navigator.pop(context);
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -114,7 +114,7 @@ class UserList extends ConsumerWidget {
             },
           ),
           onDismissed: (DismissDirection direction) =>
-              _box.remove(userList[index].id),
+              removeUser(id: userList[index].id),
         );
       },
     );
@@ -188,6 +188,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var subjects = getSubjects();
     return Scaffold(
       appBar: AppBar(
         title: Text('Universe'),
@@ -196,6 +197,14 @@ class HomePage extends StatelessWidget {
         child: ListView(
           children: [
             UserAccountsDrawerHeader(
+              otherAccountsPictures: [
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.logout))
+              ],
               accountName: Text(user.username),
               accountEmail: user.bio == null ? null : Text(user.bio!),
               currentAccountPicture: CircleAvatar(
@@ -204,9 +213,25 @@ class HomePage extends StatelessWidget {
                 onBackgroundImageError: (exception, stackTrace) => null,
               ),
             ),
-            SizedBox(height: 500, child: userListView),
+            SizedBox(height: 500, child: UserList()),
           ],
         ),
+      ),
+      body: FutureBuilder(
+        future: subjects,
+        builder: (context, snapshot) {
+          print(snapshot.data?[0]);
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                  snapshot.data!.length,
+                  (index) => TextButton(
+                      onPressed: () {},
+                      child: Text(snapshot.data?[index]["Name"]))),
+            ),
+          );
+        },
       ),
     );
   }
