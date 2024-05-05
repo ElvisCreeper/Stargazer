@@ -13,6 +13,7 @@ dependencies:
   objectbox: ^2.5.1
   objectbox_flutter_libs: any
   flutter_html: ^3.0.0-beta.2
+  flutter_quill: ^9.3.10
   flutter_riverpod: 
 
 dev_dependencies:

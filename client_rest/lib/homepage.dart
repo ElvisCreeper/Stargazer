@@ -1,3 +1,4 @@
+import 'package:client_rest/editor.dart';
 import 'package:client_rest/model.dart';
 import 'package:client_rest/server_connection.dart';
 import 'package:client_rest/solar_system.dart';
@@ -13,7 +14,6 @@ var _fabProvider = StateProvider<FloatingActionButton?>((ref) => null);
 class HomePage extends InheritedWidget {
   final User user;
   HomePage({required this.user}) : super(child: _HomePage());
-  
 
   static HomePage of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<HomePage>() as HomePage;
@@ -197,7 +197,11 @@ class ContentState extends State<Content> {
     ));
     List<Widget> pathAux = List.from(_path);
     widget.ref.read(_pathProvider.notifier).state = pathAux;
-    widget.ref.read(_fabProvider.notifier).state = FloatingActionButton(onPressed: (){}); 
+    widget.ref.read(_fabProvider.notifier).state =
+        FloatingActionButton(onPressed: () {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => EditorPage()));
+    });
     return FutureBuilder(
       future: getPosts(tabId, userId),
       builder: (context, snapshot) {
