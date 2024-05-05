@@ -1,4 +1,4 @@
-import 'package:client_rest/main.dart';
+import 'package:client_rest/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'model.dart';
@@ -115,5 +115,17 @@ Future<List> getComments(int postId, int userId) async {
   }
   print("woof");
   return [];
+}
 
+ratePost(int userId, String password, String action, int postId) async {
+var response = await http.post(
+    Uri.http(ip, "/social/api/likes.php"),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    //encoding: Encoding.getByName('utf-8'),
+    body: {"userId": userId.toString(), "password": password, "action": action, "postId": postId.toString()},
+  );
+  print(response.statusCode);
+  print(response.body);
 }

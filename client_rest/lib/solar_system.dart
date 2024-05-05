@@ -1,8 +1,6 @@
 import 'dart:math';
-
-import 'package:client_rest/server_connection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+
 
 class TabsInfo extends InheritedWidget {
   final List tabs;
