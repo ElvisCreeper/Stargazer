@@ -2,9 +2,11 @@ import 'package:client_rest/editor.dart';
 import 'package:client_rest/model.dart';
 import 'package:client_rest/server_connection.dart';
 import 'package:client_rest/solar_system.dart';
+import 'package:client_rest/userpage.dart';
 import 'package:client_rest/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:loop_page_view/loop_page_view.dart';
 
 var _pathProvider = StateProvider<List<Widget>>(
     (ref) => [TextButton(onPressed: () {}, child: Text("Universe"))]);
@@ -40,22 +42,29 @@ class _HomePage extends ConsumerWidget {
           child: ListView(
             children: [
               UserAccountsDrawerHeader(
-                otherAccountsPictures: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.logout))
-                ],
-                accountName: Text(user.username),
-                accountEmail: user.bio == null ? null : Text(user.bio!),
-                currentAccountPicture: CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      'http://$ip/social/userImages/${user.image}'),
-                  onBackgroundImageError: (exception, stackTrace) => null,
-                ),
-              ),
+                  otherAccountsPictures: [
+                    IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(Icons.logout))
+                  ],
+                  accountName: Text(user.username),
+                  accountEmail: user.bio == null ? null : Text(user.bio!),
+                  currentAccountPicture: GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              UserPage(user, user.id),
+                        )),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                          'http://$ip/social/userImages/${user.image}'),
+                      onBackgroundImageError: (exception, stackTrace) => null,
+                    ),
+                  )),
               SizedBox(height: 500, child: UserList()),
             ],
           ),
@@ -200,8 +209,18 @@ class ContentState extends State<Content> {
     widget.ref.read(_fabProvider.notifier).state =
         FloatingActionButton(onPressed: () {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => EditorPage()));
+          context,
+          MaterialPageRoute(
+              builder: (context) => EditorPage(
+                  null,
+                  HomePage.of(this.context).user.userId,
+                  HomePage.of(this.context).user.password,
+                  tabId,
+                  "post")));
     });
+    PostCard.userId = userId;
+    PostCard.tabId = tabId;
+    PostCard.password = HomePage.of(context).user.password;
     return FutureBuilder(
       future: getPosts(tabId, userId),
       builder: (context, snapshot) {
@@ -209,8 +228,8 @@ class ContentState extends State<Content> {
           return Column(
             children: [
               SizedBox(
-                child: PageView.builder(
-                  itemCount: snapshot.data?.length,
+                child: LoopPageView.builder(
+                  itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     return PostCard(snapshot.data?[index]);
                   },

@@ -1,8 +1,10 @@
+import 'package:client_rest/editor.dart';
 import 'package:client_rest/homepage.dart';
 import 'package:client_rest/main.dart';
 import 'package:client_rest/model.dart';
 import 'package:client_rest/objectbox.g.dart';
 import 'package:client_rest/server_connection.dart';
+import 'package:client_rest/userpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,6 +62,8 @@ class UserList extends ConsumerWidget {
 
 class PostCard extends StatelessWidget {
   final Map post;
+  static int tabId = 0, userId = 0;
+  static String password = "";
 
   PostCard(this.post);
 
@@ -70,13 +74,57 @@ class PostCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-              trailing: CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'http://$ip/social/userImages/${post["image"]}'),
-              ),
+              trailing: post["UserId"] == userId
+                  ? PopupMenuButton(itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(
+                          child: Text("Edit"),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => EditorPage(
+                                          post["id"],
+                                          userId,
+                                          password,
+                                          tabId,
+                                          "edit",
+                                          post["title"],
+                                          post["body"],
+                                        )));
+                          },
+                        ),
+                        PopupMenuItem(
+                          child: Text(
+                            "Delete",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          onTap: () {
+                            deletePost(userId, password, post["id"]);
+                          },
+                        ),
+                      ];
+                    })
+                  : null,
               title: Text(post["title"] != null ? post["title"] : ""),
+              leading: GestureDetector(
+                onTap: () {
+                  getUser(post["UserId"]).then(
+                    (value) => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserPage(value!, userId),
+                        )),
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      'http://$ip/social/userImages/${post["image"]}'),
+                ),
+              ),
               subtitle: Text(
                   post["time"] + (post["edited"] == 1 ? " (edited)" : ""))),
+          Divider(),
           Expanded(
               child: SingleChildScrollView(
                   child: Html(data: post["body"] != null ? post["body"] : ""))),
@@ -86,12 +134,24 @@ class PostCard extends StatelessWidget {
               OutlinedButton(
                 onPressed: () {
                   showDialog(
+                    useRootNavigator: false,
                     context: context,
                     builder: (_) {
                       return AlertDialog(
                           actions: [
                             OutlinedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => EditorPage(
+                                                post["id"],
+                                                userId,
+                                                password,
+                                                tabId,
+                                                "comment",
+                                              )));
+                                },
                                 child: Icon(Icons.add_comment_rounded)),
                             OutlinedButton(
                                 onPressed: () =>
@@ -144,8 +204,8 @@ class PostCard extends StatelessWidget {
 class LikeButtons extends StatefulWidget {
   int postId;
   bool? liked;
-  LikeButtons(this.postId, positive, {super.key}){
-    if(positive != null){
+  LikeButtons(this.postId, positive, {super.key}) {
+    if (positive != null) {
       positive == 1 ? liked = true : liked = false;
     }
   }
@@ -157,8 +217,8 @@ class LikeButtons extends StatefulWidget {
 class _LikeButtonsState extends State<LikeButtons> {
   List<bool> selectedLike = [false, false];
 
-  _LikeButtonsState(bool? liked){
-    if(liked != null){
+  _LikeButtonsState(bool? liked) {
+    if (liked != null) {
       selectedLike[0] = liked;
       selectedLike[1] = !liked;
     }
@@ -174,16 +234,18 @@ class _LikeButtonsState extends State<LikeButtons> {
           print(selectedLike);
           String action = "unlike";
           for (int i = 0; i < selectedLike.length; i++) {
-            i == index ? selectedLike[i] = !selectedLike[i] : selectedLike[i] = false;
+            i == index
+                ? selectedLike[i] = !selectedLike[i]
+                : selectedLike[i] = false;
           }
           print(selectedLike);
-          if(selectedLike[0]){
+          if (selectedLike[0]) {
             action = "like";
           }
-          if(selectedLike[1]){
+          if (selectedLike[1]) {
             action = "dislike";
           }
-          ratePost(HomePage.of(context).user.userId, HomePage.of(context).user.password, action, widget.postId);
+          ratePost(PostCard.userId, PostCard.password, action, widget.postId);
         });
       },
     );

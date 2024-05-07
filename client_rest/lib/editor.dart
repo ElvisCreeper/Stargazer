@@ -1,94 +1,115 @@
+import 'package:client_rest/server_connection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 
 class EditorPage extends StatelessWidget {
-  var _controller = QuillController.basic();
+  int? postId;
+  int userId, tabId;
+  String password;
+  String action, title = "", submitText = "";
+  String? postText;
+
+  EditorPage(this.postId, this.userId, this.password, this.tabId, this.action, [String postTitle="", this.postText]) {
+    switch (action) {
+      case "post":
+        title = "Create a post";
+        submitText = "POST";
+        break;
+      case "edit":
+        title = "Edit post";
+        submitText = "EDIT";
+        titleController.text = postTitle;
+        break;
+      case "comment":
+        title = "Create a comment";
+        submitText = "REPLY";
+        
+        break;
+    }
+  }
+
+  HtmlEditorController controller = HtmlEditorController();
+  TextEditingController titleController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create a post"),
+        title: Text(title),
       ),
       bottomSheet: Container(
         height: 100,
         child: Column(
           children: [
             Divider(),
-            TextButton(onPressed: () {}, child: Text("post")),
+            TextButton(
+                onPressed: () {
+                  switch (action) {
+                    case "post":
+                      controller.getText().then((text) => createPost(
+                          userId, password, titleController.text, text, tabId));
+                      break;
+                    case "edit":
+                      controller.getText().then((text) => updatePost(
+                          userId, password, titleController.text, text, postId!));
+                      break;
+                    case "comment":
+                      controller.getText().then((text) => createComment(
+                          userId, password, titleController.text, text, tabId, postId!));
+                      break;
+                  }
+                },
+                child: Text(submitText)),
           ],
         ),
       ),
       body: Column(
         children: [
-          QuillToolbar.simple(
-            /*padding: const EdgeInsets.all(8),
-            iconSize: 20,
-            controller: _controller,
-            toolBarColor: Colors.grey[200],
-            alignment: WrapAlignment.center,
-            toolBarConfig: [
-              ToolBarStyle.size,
-              ToolBarStyle.headerOne,
-              ToolBarStyle.headerTwo,
-              ToolBarStyle.color,
-              ToolBarStyle.background,
-              ToolBarStyle.undo,
-              ToolBarStyle.redo,
-              ToolBarStyle.listOrdered,
-              ToolBarStyle.listBullet,
-              ToolBarStyle.bold,
-              ToolBarStyle.underline,
-              ToolBarStyle.italic,
-              ToolBarStyle.strike,
-              ToolBarStyle.align,
-              ToolBarStyle.link
-            ],*/
-            configurations: QuillSimpleToolbarConfigurations(
-              controller: _controller,
-              showFontFamily: false,
-              showCodeBlock: false,
-              showListCheck: false,
-              showInlineCode: false,
-              showQuote: false,
-              showClipboardCopy: false,
-              showClipboardCut: false,
-              showClipboardPaste: false,
-              showSearchButton: false,
-              showAlignmentButtons: true,
-              showIndent: false,
+          TextField(
+              controller: titleController,
+              decoration: InputDecoration(
+                hintText: 'Title',
+                labelText: 'Title',
+                border: OutlineInputBorder(),
+              )),
+          HtmlEditor(
+            htmlToolbarOptions: HtmlToolbarOptions(
+              toolbarType: ToolbarType.nativeExpandable,
+              defaultToolbarButtons: [
+                StyleButtons(),
+                FontSettingButtons(fontName: false),
+                ColorButtons(),
+                OtherButtons(
+                    fullscreen: false,
+                    codeview: false,
+                    help: false,
+                    copy: false,
+                    paste: false),
+                FontButtons(subscript: false, superscript: false),
+                ListButtons(listStyles: false),
+                ParagraphButtons(
+                    increaseIndent: false,
+                    decreaseIndent: false,
+                    caseConverter: false,
+                    lineHeight: false,
+                    textDirection: false),
+                InsertButtons(
+                    picture: false,
+                    audio: false,
+                    video: false,
+                    otherFile: false,
+                    table: false,
+                    hr: false)
+              ],
             ),
-          ),
-          QuillSingleChildScrollView(
-            controller: ScrollController(),
-            viewportBuilder: (context, position) {
-              return QuillEditor.basic(
-                configurations:
-                    QuillEditorConfigurations(controller: _controller),
-
-                /*
-              text: "<h1>Hello</h1>This is a quill html editor example 😊",
-              hintText: 'Hint text goes here',
-              controller: _controller,
-              isEnabled: true,
-              minHeight: 300,
-              hintTextAlign: TextAlign.start,
-              padding: const EdgeInsets.only(left: 10, top: 5),
-              hintTextPadding: EdgeInsets.zero,
-              onFocusChanged: (hasFocus) => debugPrint('has focus $hasFocus'),
-              onTextChanged: (text) => debugPrint('widget text change $text'),
-              onEditorCreated: () => debugPrint('Editor has been loaded'),
-              onEditingComplete: (s) => debugPrint('Editing completed $s'),
-              onEditorResized: (height) => debugPrint('Editor resized $height'),
-              onSelectionChanged: (sel) =>
-                  debugPrint('${sel.index},${sel.length}'),
-              loadingBuilder: (context) {
-                return const Center(
-                    child: CircularProgressIndicator(
-                  strokeWidth: 0.4,
-                ));
-              },*/
-              );
-            },
+            controller: controller, //required
+            htmlEditorOptions: HtmlEditorOptions(
+              hint: "Your text here...",
+              initialText: postText,
+            ),
+            otherOptions: OtherOptions(
+              height: 400,
+            ),
           ),
         ],
       ),

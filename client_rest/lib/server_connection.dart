@@ -55,6 +55,42 @@ Future<dynamic> login(String username, String password) async {
   }
 }
 
+Future<User?> getUser(int userId) async {
+  var response = await http.get(
+      Uri.http(ip, "social/api/users.php", {"userId": userId.toString()}));
+      print(response.statusCode);
+  print(response.body);
+  switch (response.statusCode) {
+    case 200:
+      var responseJson = json.decode(response.body);
+      return User(
+          userId: responseJson["id"],
+          username: responseJson["Username"],
+          password: "",
+          resgistrationDate: responseJson["registrationDate"],
+          bio: responseJson["Bio"],
+          image: responseJson["Image"]);
+  }
+  return null;
+}
+
+updateUser(
+    int userId, String password, String username, String bio, String image) async {
+  var response = await http.put(
+    Uri.http(ip, "/social/api/users.php").replace(
+      queryParameters: {
+        "userId": userId.toString(),
+        "password": password,
+        "Username": username,
+        "Bio": bio,
+        "Image": image
+      },
+    ),
+  );
+  print(response.statusCode);
+  print(response.body);
+}
+
 Future<List> getSubjects() async {
   var response = await http.get(Uri.http(ip, "social/api/subjects.php"));
   switch (response.statusCode) {
@@ -66,11 +102,11 @@ Future<List> getSubjects() async {
 
 Future<List> getTopics(int subjectId) async {
   print("meow");
-  var response = await http
-      .get(Uri.http(ip, "social/api/topics.php", {"subjectId": subjectId.toString()}));
+  var response = await http.get(Uri.http(
+      ip, "social/api/topics.php", {"subjectId": subjectId.toString()}));
   switch (response.statusCode) {
     case 200:
-    print(response.body + "arf");
+      print(response.body + "arf");
       return json.decode(response.body);
   }
   print("woof");
@@ -79,11 +115,11 @@ Future<List> getTopics(int subjectId) async {
 
 Future<List> getTabs(int topicId) async {
   print("meow");
-  var response = await http
-      .get(Uri.http(ip, "social/api/tabs.php", {"topicId": topicId.toString()}));
+  var response = await http.get(
+      Uri.http(ip, "social/api/tabs.php", {"topicId": topicId.toString()}));
   switch (response.statusCode) {
     case 200:
-    print(response.body + "arf");
+      print(response.body + "arf");
       return json.decode(response.body);
   }
   print("woof");
@@ -92,25 +128,24 @@ Future<List> getTabs(int topicId) async {
 
 Future<List> getPosts(int tabId, int userId) async {
   print("meow");
-  var response = await http
-      .get(Uri.http(ip, "social/api/posts.php", {"tabId": tabId.toString(), "userId": userId.toString()}));
+  var response = await http.get(Uri.http(ip, "social/api/posts.php",
+      {"tabId": tabId.toString(), "userId": userId.toString()}));
   switch (response.statusCode) {
     case 200:
-    print(response.body + "arf");
+      print(response.body + "arf");
       return json.decode(response.body);
   }
   print("woof");
   return [];
-
 }
 
 Future<List> getComments(int postId, int userId) async {
   print("meow");
-  var response = await http
-      .get(Uri.http(ip, "social/api/comments.php", {"postId": postId.toString(), "userId": userId.toString()}));
+  var response = await http.get(Uri.http(ip, "social/api/comments.php",
+      {"postId": postId.toString(), "userId": userId.toString()}));
   switch (response.statusCode) {
     case 200:
-    print(response.body + "arf");
+      print(response.body + "arf");
       return json.decode(response.body);
   }
   print("woof");
@@ -118,13 +153,90 @@ Future<List> getComments(int postId, int userId) async {
 }
 
 ratePost(int userId, String password, String action, int postId) async {
-var response = await http.post(
+  var response = await http.post(
     Uri.http(ip, "/social/api/likes.php"),
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     //encoding: Encoding.getByName('utf-8'),
-    body: {"userId": userId.toString(), "password": password, "action": action, "postId": postId.toString()},
+    body: {
+      "userId": userId.toString(),
+      "password": password,
+      "action": action,
+      "postId": postId.toString()
+    },
+  );
+  print(response.statusCode);
+  print(response.body);
+}
+
+createPost(
+    int userId, String password, String title, String text, int tabId) async {
+  var response = await http.post(
+    Uri.http(ip, "/social/api/posts.php"),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    //encoding: Encoding.getByName('utf-8'),
+    body: {
+      "userId": userId.toString(),
+      "password": password,
+      "title": title,
+      "text": text,
+      "tabId": tabId.toString()
+    },
+  );
+  print(response.statusCode);
+  print(response.body);
+}
+
+updatePost(
+    int userId, String password, String title, String text, int postId) async {
+  var response = await http.put(
+    Uri.http(ip, "/social/api/posts.php").replace(
+      queryParameters: {
+        "userId": userId.toString(),
+        "password": password,
+        "title": title,
+        "text": text,
+        "postId": postId.toString()
+      },
+    ),
+  );
+  print(response.statusCode);
+  print(response.body);
+}
+
+deletePost(int userId, String password, int postId) async {
+  var response = await http.delete(
+    Uri.http(ip, "/social/api/posts.php").replace(
+      queryParameters: {
+        "userId": userId.toString(),
+        "password": password,
+        "postId": postId.toString()
+      },
+    ),
+  );
+  print(response.statusCode);
+  print(response.body);
+}
+
+createComment(int userId, String password, String title, String text, int tabId,
+    int postId) async {
+  var response = await http.post(
+    Uri.http(ip, "/social/api/comments.php"),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    //encoding: Encoding.getByName('utf-8'),
+    body: {
+      "userId": userId.toString(),
+      "password": password,
+      "title": title,
+      "text": text,
+      "tabId": tabId.toString(),
+      "replyId": postId.toString()
+    },
   );
   print(response.statusCode);
   print(response.body);
