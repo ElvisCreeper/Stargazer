@@ -8,4 +8,4 @@ Per TPSIT è stato creato un *client REST* in **Flutter** mentre il *server REST
 La documentazione dell'**API** si trova `doc/openapi.yaml` e utilizza *Swagger Editor*.
 
 >Il *client REST* fa utilizzo di **objectBox** come *database* interno per la memorizzazione degli utenti registrati.
->*Buisness Logic implementata utilizzando il pacchetto **riverpod** per la gestione dello stato.
+>*Buisness Logic* implementata utilizzando il pacchetto **riverpod** per la gestione dello stato.
