@@ -16,6 +16,7 @@ dependencies:
   html_editor_enhanced: ^2.5.0
   flutter_riverpod: 
   loop_page_view: ^1.2.5
+  
 
 dev_dependencies:
   flutter_test:

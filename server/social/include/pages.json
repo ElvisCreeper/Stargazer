@@ -1,0 +1,8 @@
+{
+    "userpages": ["homepage.php","user.php","editUser.php","topicCreation.php","editTopic.php","loginForm.php","registration.php","subject.php","topic.php","tab.php","postFocus.php"],
+    "adminpages": [],
+    "loggedInPages": ["homepage.php","user.php","editUser.php","deletePost.php","editPost.php","topicCreation.php","editTopic.php","insertTab.php","removeTab.php","comment.php","insertPost.php","like.php","post.php","tab.php","topic.php","subject.php","editTab.php","logout.php"],
+    "DBPages": ["homepage.php","tab.php","topic.php","subject.php","post.php","insertPost.php","removeTab.php","user.php","editUser.php","comment.php","like.php","deletePost.php","editPost.php","topicCreation.php","editTopic.php","insertTab.php","editTab.php","getHint.php","users.php","subjects.php","tabs.php","topics.php","posts.php","likes.php","comments.php","auth.php"],
+    "AJAXPages": ["post.php","createPost.php","comment.php","editTab.php","getHint.php"],
+    "APIPages": ["users.php","subjects.php","tabs.php","topics.php","posts.php","likes.php","comments.php","auth.php"]
+}

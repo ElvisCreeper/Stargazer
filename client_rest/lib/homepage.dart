@@ -8,12 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loop_page_view/loop_page_view.dart';
 
-var _pathProvider = StateProvider<List<Widget>>(
-    (ref) => [TextButton(onPressed: () {}, child: Text("Universe"))]);
-
-var _fabProvider = StateProvider<FloatingActionButton?>((ref) => null);
-
 class HomePage extends InheritedWidget {
+  final _pathProvider = StateProvider<List<Widget>>(
+      (ref) => [TextButton(onPressed: () {}, child: const Text("Universe"))]);
+
+  final _fabProvider = StateProvider<FloatingActionButton?>((ref) => null);
   final User user;
   HomePage({required this.user}) : super(child: _HomePage());
 
@@ -29,8 +28,9 @@ class _HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final User user = HomePage.of(context).user;
-    final path = ref.watch(_pathProvider);
-    final FloatingActionButton? fab = ref.watch(_fabProvider);
+    final path = ref.watch(HomePage.of(context)._pathProvider);
+    final FloatingActionButton? fab =
+        ref.watch(HomePage.of(context)._fabProvider);
     return Scaffold(
         appBar: AppBar(
           title: Consumer(
@@ -42,13 +42,15 @@ class _HomePage extends ConsumerWidget {
           child: ListView(
             children: [
               UserAccountsDrawerHeader(
+                  decoration:
+                      const BoxDecoration(color: Color.fromRGBO(15, 167, 213, 1)),
                   otherAccountsPictures: [
                     IconButton(
                         onPressed: () {
                           Navigator.pop(context);
                           Navigator.pop(context);
                         },
-                        icon: Icon(Icons.logout))
+                        icon: const Icon(Icons.logout))
                   ],
                   accountName: Text(user.username),
                   accountEmail: user.bio == null ? null : Text(user.bio!),
@@ -56,13 +58,18 @@ class _HomePage extends ConsumerWidget {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              UserPage(user, user.id),
+                          builder: (context) => UserPage(user, user.userId),
                         )),
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(
                           'http://$ip/social/userImages/${user.image}'),
-                      onBackgroundImageError: (exception, stackTrace) => null,
+                      onBackgroundImageError: (exception, stackTrace) {},
+                      child: user.image == null
+                          ? const Icon(
+                              Icons.person,
+                              size: 40,
+                            )
+                          : null,
                     ),
                   )),
               SizedBox(height: 500, child: UserList()),
@@ -82,29 +89,32 @@ class Content extends StatefulWidget {
 }
 
 class ContentState extends State<Content> {
-  Widget state = CircularProgressIndicator();
-  List<Widget> _path = [];
+  Widget state = const CircularProgressIndicator();
+  final List<Widget> _path = [];
 
   ContentState() {
-    this.state = subjects();
+    state = subjects();
   }
 
   Widget subjects() {
     _path.clear();
     _path.add(TextButton(
-        child: Text("Universe"),
+        child: const Text("Universe"),
         onPressed: () => setState(() {
               state = subjects();
             })));
     try {
       List<Widget> pathAux = List.from(_path);
-      widget.ref.read(_pathProvider.notifier).state = pathAux;
+      widget.ref.read(HomePage.of(context)._pathProvider.notifier).state =
+          pathAux;
+      widget.ref.read(HomePage.of(context)._fabProvider.notifier).state = null;
     } catch (e) {}
 
     return FutureBuilder(
       future: getSubjects(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +131,7 @@ class ContentState extends State<Content> {
             ),
           );
         }
-        return CircularProgressIndicator();
+        return const Center(child: Text("There is nothing here..."));
       },
     );
   }
@@ -131,33 +141,42 @@ class ContentState extends State<Content> {
     _path.add(TextButton(
         child: Text(subjectName),
         onPressed: () => setState(() {
+              widget.ref
+                  .read(HomePage.of(context)._fabProvider.notifier)
+                  .state = null;
               state = topics(subjectId, subjectName);
             })));
     List<Widget> pathAux = List.from(_path);
-    widget.ref.read(_pathProvider.notifier).state = pathAux;
+    widget.ref.read(HomePage.of(context)._pathProvider.notifier).state =
+        pathAux;
 
     return FutureBuilder(
       future: getTopics(subjectId),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          print(snapshot.data?[0]);
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                   snapshot.data!.length,
-                  (index) => TextButton(
-                      onPressed: () {
-                        setState(() {
-                          state = tabs(snapshot.data?[index]["id"],
-                              snapshot.data?[index]["Name"]);
-                        });
-                      },
-                      child: Text(snapshot.data?[index]["Name"]))),
+                  (index) => Column(
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            setState(() {
+                              state = tabs(snapshot.data?[index]["id"],
+                                  snapshot.data?[index]["Name"]);
+                            });
+                          },
+                          child: Text(snapshot.data?[index]["Name"])),
+                        snapshot.data?[index]["Description"] != null ? Text(snapshot.data?[index]["Description"]) : const Text(""),
+                    ],
+                  )),
             ),
           );
         }
-        return CircularProgressIndicator();
+        return const Center(child: Text("There is nothing here..."));
       },
     );
   }
@@ -167,22 +186,26 @@ class ContentState extends State<Content> {
     _path.add(TextButton(
         child: Text(topicName),
         onPressed: () => setState(() {
+              widget.ref
+                  .read(HomePage.of(context)._fabProvider.notifier)
+                  .state = null;
               state = tabs(topicId, topicName);
             })));
     List<Widget> pathAux = List.from(_path);
-    widget.ref.read(_pathProvider.notifier).state = pathAux;
+    widget.ref.read(HomePage.of(context)._pathProvider.notifier).state =
+        pathAux;
     return FutureBuilder(
       future: getTabs(topicId),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          print(snapshot.data?[0]);
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
           return TabsInfo(
             tabs: snapshot.data!,
             topicName: topicName,
             action: goToPostPage,
           );
         }
-        return CircularProgressIndicator();
+        return const Center(child: Text("There is nothing here..."));
       },
     );
   }
@@ -205,42 +228,57 @@ class ContentState extends State<Content> {
       onPressed: () {},
     ));
     List<Widget> pathAux = List.from(_path);
-    widget.ref.read(_pathProvider.notifier).state = pathAux;
-    widget.ref.read(_fabProvider.notifier).state =
-        FloatingActionButton(onPressed: () {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => EditorPage(
-                  null,
-                  HomePage.of(this.context).user.userId,
-                  HomePage.of(this.context).user.password,
-                  tabId,
-                  "post")));
-    });
+    widget.ref.read(HomePage.of(context)._pathProvider.notifier).state =
+        pathAux;
+    widget.ref.read(HomePage.of(context)._fabProvider.notifier).state =
+        FloatingActionButton(
+            shape: const CircleBorder(),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EditorPage(
+                          null,
+                          HomePage.of(this.context).user.userId,
+                          HomePage.of(this.context).user.password,
+                          tabId,
+                          "post")));
+            },
+            child: const Icon(Icons.add));
     PostCard.userId = userId;
     PostCard.tabId = tabId;
     PostCard.password = HomePage.of(context).user.password;
     return FutureBuilder(
       future: getPosts(tabId, userId),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Column(
-            children: [
-              SizedBox(
-                child: LoopPageView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    return PostCard(snapshot.data?[index]);
-                  },
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  child: SizedBox(
+                    height: 400,
+                    child: LoopPageView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return PostCard(snapshot.data?[index]);
+                      },
+                    ),
+                  ),
                 ),
-                height: 450,
-              ),
-              FlutterLogo(),
-            ],
+              ],
+            ),
           );
         }
-        return CircularProgressIndicator();
+        return const Center(child: Text("There is nothing here..."));
       },
     );
   }

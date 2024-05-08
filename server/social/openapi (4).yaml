@@ -1,0 +1,755 @@
+openapi: 3.0.0
+info:
+  title: Social Network API
+  description: Documentazione API per un social network
+  version: 1.0.0
+servers:
+  - url:  http://localhost/social/api
+tags:
+  - name: post
+    description: Everything about Posts
+  - name: user
+    description: Operations about user
+  - name: tab
+    description: Sections where posts are stored
+  - name: topic
+    description: Sections where posts are stored
+  - name: subjects
+    description: Sections where topics are stored
+paths:
+  /posts.php:
+    get:
+      tags:
+        - post
+      summary: Restituisce tutti i post di una tab
+      parameters:
+        - name: userId
+          in: query
+          description: ID dell'utente che vuole vedere i post
+          required: false
+          schema:
+            type: integer
+        - name: tabId
+          in: query
+          description: ID della tab dei post da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '400':
+          description: Parametro tabId non presente
+    post:
+      tags:
+        - post
+      summary: Crea un nuovo post
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                password:
+                  type: string
+                title:
+                  type: string
+                text:
+                  type: string
+                tabId:
+                  type: integer
+      responses:
+        '201':
+          description: Post creato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Richiesta non valida
+        '401':
+          description: Credenziali utente non valide
+    put:
+      tags:
+        - post
+      summary: Aggiorna un post esistente
+      parameters:
+        - name: postId
+          in: query
+          description: ID del post da modificare
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: ID dell'autore del post
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'autore del post
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: query
+          description: nuovo titolo post
+          required: false
+          schema:
+            type: string
+        - name: text
+          in: query
+          description: nuova contenuto post
+          required: false
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Post modificato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Richiesta non valida
+        '404':
+          description: Post non trovato
+    delete:
+      tags:
+        - post
+      summary: Elimina un post esistente
+      parameters:
+        - name: postId
+          in: query
+          description: ID del post da eliminare
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: ID dell'autore del post
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'autore del post
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post eliminato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Richiesta non valida
+        '404':
+          description: Post non trovato
+  /likes.php:
+    post:
+      tags:
+        - post
+      summary: metti/togli like o dislike ad un post
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                password:
+                  type: string
+                action:
+                  type: string
+                  description: deve essere like, dislike o unlike
+                postId:
+                  type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Richiesta non valida
+        '401':
+          description: Credenziali utente non valide
+        '402':
+          description: Parametro action non valido
+  /comments.php:
+    get:
+      tags:
+        - post
+      summary: Restituisce tutti i commenti di un post
+      parameters:
+        - name: userId
+          in: query
+          description: ID dell'utente che vuole vedere i commenti
+          required: false
+          schema:
+            type: integer
+        - name: postId
+          in: query
+          description: ID del post dei commenti da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '400':
+          description: Parametro postId non presente
+    post:
+      tags:
+        - post
+      summary: Crea un nuovo commento
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                password:
+                  type: string
+                title:
+                  type: string
+                text:
+                  type: string
+                tabId:
+                  type: integer
+                replyId:
+                  type: integer
+      responses:
+        '201':
+          description: Commento creato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Richiesta non valida
+        '401':
+          description: Credenziali utente non valide
+  /users.php:
+    get:
+      tags:
+        - user
+      summary: Restituisce un utente specifico
+      parameters:
+        - name: userId
+          in: query
+          description: ID dell'utente da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Utente non trovato
+        '400':
+          description: Parametro userId non presente
+    post:
+      tags:
+        - user
+      summary: Crea un nuovo utente
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Utente creato con successo
+        '400':
+          description: Richiesta non valida
+        '401':
+          description: Nome utente non valido
+    put:
+      tags:
+        - user
+      summary: Aggiorna un utente esistente
+      parameters:
+        - name: userId
+          in: query
+          description: ID dell'utente da modificare
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'utente da modificare
+          required: true
+          schema:
+            type: string
+        - name: Username
+          in: query
+          description: nuovo nome utente
+          required: false
+          schema:
+            type: string
+        - name: Bio
+          in: query
+          description: nuova bio utente
+          required: false
+          schema:
+            type: string
+        - name: Image
+          in: query
+          description: nuovo percorso immagine dell'utente
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Utente aggiornato con successo
+        '400':
+          description: Richiesta non valida
+        '404':
+          description: Utente non trovato
+    delete:
+      tags:
+        - user
+      summary: Elimina un utente esistente
+      parameters:
+        - name: userId
+          in: query
+          description: ID dell'utente da eliminare
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'utente da eliminare
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Utente eliminato con successo
+        '400':
+          description: Richiesta non valida
+        '404':
+          description: Utente non trovato
+  /tabs.php:
+    get:
+      tags:
+        - tab
+      summary: Restituisce tutte le tab di un topic
+      parameters:
+        - name: topicId
+          in: query
+          description: ID del topic delle tab da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tab'
+        '400':
+          description: Parametro topicId non presente
+    post:
+      tags:
+        - tab
+      summary: Crea una nuova tab
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                password:
+                  type: string
+                topicId:
+                  type: integer
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Tab creata con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tab'
+        '400':
+          description: Richiesta non valida
+        '401':
+          description: Credenziali utente non valide
+    put:
+      tags:
+        - tab
+      summary: Aggiorna un utente esistente
+      parameters:
+        - name: tabId
+          in: query
+          description: ID della tab da modificare
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: ID dell'utente amminstratore
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'utente amministratore
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: nuovo nome tab
+          required: false
+          schema:
+            type: string
+        - name: description
+          in: query
+          description: nuova descrizione tab
+          required: false
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Tab aggiornata con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tab'
+        '400':
+          description: Richiesta non valida
+        '404':
+          description: Tab non trovata
+    delete:
+      tags:
+        - tab
+      summary: Elimina una tab esistente
+      parameters:
+        - name: tabId
+          in: query
+          description: ID della tab da eliminare
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: ID dell'utente amminstratore
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'utente amministratore
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Tab eliminata con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tab'
+        '404':
+          description: Tab non trovata
+  /topics.php:
+    get:
+      tags:
+        - topic
+      summary: Restituisce tutti i topic di una subject
+      parameters:
+        - name: subjectId
+          in: query
+          description: ID della subject dei topic da recuperare
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Topic'
+        '400':
+          description: Parametro topicId non presente
+    post:
+      tags:
+        - topic
+      summary: Crea un nuovo topic
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                password:
+                  type: string
+                subjectId:
+                  type: integer
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Topic creato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+        '400':
+          description: Richiesta non valida
+        '401':
+          description: Credenziali utente non valide
+    put:
+      tags:
+        - topic
+      summary: Aggiorna un topic esistente
+      parameters:
+        - name: topicId
+          in: query
+          description: ID del topic da modificare
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: ID dell'utente amminstratore
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'utente amministratore
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: nuovo nome topic
+          required: false
+          schema:
+            type: string
+        - name: description
+          in: query
+          description: nuova descrizione topic
+          required: false
+          schema:
+            type: string
+        - name: subjectId
+          in: query
+          description: nuova subject topic
+          required: false
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Topic aggiornato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+        '400':
+          description: Richiesta non valida
+        '404':
+          description: Topic non trovato
+    delete:
+      tags:
+        - topic
+      summary: Elimina un topic esistente
+      parameters:
+        - name: topicId
+          in: query
+          description: ID del topic da eliminare
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: ID dell'utente amminstratore
+          required: true
+          schema:
+            type: integer
+        - name: password
+          in: query
+          description: password dell'utente amministratore
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Topic eliminato con successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+        '404':
+          description: Topic non trovato
+  /subjects.php:
+    get:
+      tags:
+        - subjects
+      summary: Restituisce tutte le subjects
+      parameters:
+        - name: subjectId
+          in: query
+          description: ID della subject da recuperare (se non presente restituisce tutte le subject)
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subject'
+        '404':
+          description: Subject non trovata
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        title:
+          type: integer
+          description: titolo del post
+        time:
+          type: string
+          format: date-time
+          description: Data e ora di pubblicazione del post
+        image:
+          type: string
+          description: Percorso immagine autore del post
+        body:
+          type: string
+          description: contenuto del post
+        edited:
+          type: boolean
+          description: Se il post è stato modificato
+        id:
+          type: integer
+          description: ID del post
+        UserId:
+          type: integer
+          description: ID dell'utente che ha postato
+        likes:
+          type: integer
+          description: Numero di like del post
+        comments:
+          type: integer
+          description: Numero di commenti del post
+        positive:
+          type: boolean
+          description: Valutazione dell'utente
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID dell'utente
+        Username:
+          type: string
+          description: Username dell'utente
+        Bio:
+          type: string
+          description: Bio dell'utente
+        registrationDate:
+          type: string
+          format: date
+          description: Data di creazione dell'utente
+        Image:
+          type: string
+          description: URL dell'immagine del profilo dell'utente
+    Tab:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID della tab
+        Name:
+          type: string
+          description: Nome della tab
+        Description:
+          type: string
+          description: Descrizione della tab
+        TopicId:
+          type: integer
+          description: ID del topic a cui appartiene la tab
+    Topic:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID del topic
+        Name:
+          type: string
+          description: Nome del topic
+        Description:
+          type: string
+          description: Descrizione del topic
+        SubjectId:
+          type: integer
+          description: ID delle subject a cui appartiene il topic
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID della subject
+        Name:
+          type: string
+          description: Nome della subject

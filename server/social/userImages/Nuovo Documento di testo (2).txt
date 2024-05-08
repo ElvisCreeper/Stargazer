@@ -1,0 +1,35 @@
+<?php
+session_start();
+$tab = $_REQUEST["tab"];
+$_SESSION["tab"] = $tab;
+$_SESSION["tabName"] = $_REQUEST["tabName"];
+$sth = DBHandler::getPDO()->prepare("SELECT * FROM Post WHERE TabId = $tab AND Id = 33");
+$sth->execute();
+
+
+$currentPost = $sth->fetchAll()[0];
+echo "<div id='planet-display' class='ratio ratio-1x1'>
+<div class='container d-flex align-items-center mt-0' style='background:transparent;'>
+<div class='card'>
+  <div class='card-header align-items-center'>
+    <div>
+      <h5 class='m-0'>{$currentPost['title']}</h5>
+      <p class='text-muted m-0'>{$currentPost['time']}</p>
+    </div>
+  </div>
+  <div class='card-body'>
+    <p class='card-text'>{$currentPost['body']}</p>
+    <hr>
+    <div class='justify-content-between'>
+      <button type='button' class='btn btn-outline-primary'><i class='bx bx-like me-1'></i> Like</button>
+      <button type='button' class='btn btn-outline-danger'><i class='bx bx-dislike me-1'></i> Dislike</button>
+      <button type='button' class='btn btn-outline-secondary'><i class='bx bxs-comment-add me-1'></i> Comment</button>
+    </div>
+  </div>
+  <div class='card-footer text-muted'>
+    25 likes - 10 comments
+  </div>
+</div>
+</div></div>";
+
+echo '<a class="bx bx-message-alt-add btn btn-primary position-absolute bottom-0 end-0 rounded-circle m-5" href="javascript:getEditor()"></a>';

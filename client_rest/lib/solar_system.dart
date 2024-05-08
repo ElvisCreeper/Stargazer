@@ -1,14 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-
 class TabsInfo extends InheritedWidget {
   final List tabs;
   final String topicName;
   final Function action;
-  TabsInfo(
-      {required this.tabs, required this.topicName, required this.action})
-      : super(child: SolarSystem());
+  TabsInfo({required this.tabs, required this.topicName, required this.action})
+      : super(child: const SolarSystem());
 
   static TabsInfo of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<TabsInfo>() as TabsInfo;
@@ -19,7 +17,7 @@ class TabsInfo extends InheritedWidget {
 }
 
 class SolarSystem extends StatefulWidget {
-  const SolarSystem({Key? key}) : super(key: key);
+  const SolarSystem({super.key});
 
   @override
   State<SolarSystem> createState() => _SolarSystemBasicState();
@@ -29,15 +27,12 @@ class _SolarSystemBasicState extends State<SolarSystem>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
-  /*void startTicker(TickerCallback onTick) {
-    Ticker ticker = Ticker(onTick);
-    ticker.start();
-  }*/
-
   @override
   void initState() {
     _animationController = AnimationController(
-        vsync: this, duration: const Duration(seconds: 10), upperBound: 2 * pi);
+        vsync: this,
+        duration: const Duration(seconds: 100),
+        upperBound: 2 * pi);
     _animationController.addListener(() {
       setState(() {});
     });
@@ -58,7 +53,7 @@ class _SolarSystemBasicState extends State<SolarSystem>
     return InteractiveViewer(
       maxScale: 10,
       minScale: 0.1,
-      boundaryMargin: EdgeInsets.all(2500),
+      boundaryMargin: const EdgeInsets.all(2500),
       child: CustomPaint(
         painter: SolarSystemPainter(
             _animationController,
@@ -77,8 +72,7 @@ class SolarSystemPainter extends CustomPainter {
   final List tabs;
   final Function action;
 
-  SolarSystemPainter(
-      this.animation, this.tabs, this.topicName, this.action);
+  SolarSystemPainter(this.animation, this.tabs, this.topicName, this.action);
 
   var size;
 
@@ -86,24 +80,27 @@ class SolarSystemPainter extends CustomPainter {
   bool? hitTest(Offset position) {
     var planetRadius = 35.0;
     var planetOrbitRadius = 200.0;
+    double plantetdistance = 0.5;
+    double plantespeed = 7;
     var center = Offset(
-        size.width / 2 + planetOrbitRadius * cos(animation.value),
-        size.height / 2 + planetOrbitRadius * sin(animation.value));
+        size.width / 2 + planetOrbitRadius * cos(animation.value * plantespeed + plantetdistance),
+        size.height / 2 + planetOrbitRadius * sin(animation.value * plantespeed + plantetdistance));
     for (int i = 0; i < tabs.length; ++i) {
       if ((position - center).distance <= planetRadius) {
-        print(tabs[i]["Name"]);
         action(tabs[i]["id"], tabs[i]["Name"]);
       }
       planetOrbitRadius += 100;
-      center = Offset(size.width / 2 + planetOrbitRadius * cos(animation.value),
-          size.height / 2 + planetOrbitRadius * sin(animation.value));
+      plantetdistance+=0.5;
+      plantespeed-=1;
+      center = Offset(size.width / 2 + planetOrbitRadius * cos(animation.value * plantespeed + plantetdistance),
+          size.height / 2 + planetOrbitRadius * sin(animation.value * plantespeed + plantetdistance));
     }
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     this.size = size;
-    final textStyle = TextStyle(color: Colors.black);
+    const textStyle = TextStyle(color: Colors.black);
     final TextPainter textPainter = TextPainter(
         text: TextSpan(text: topicName, style: textStyle),
         textAlign: TextAlign.justify,
@@ -122,7 +119,6 @@ class SolarSystemPainter extends CustomPainter {
     }
 
     //disegna sole
-    //sun = Offset(size.width / 2, size.height / 2);
     final sunPaint = Paint()..color = Colors.yellow;
     canvas.drawCircle(Offset(size.width / 2, size.height / 2), 100, sunPaint);
     textPainter.paint(
@@ -134,10 +130,12 @@ class SolarSystemPainter extends CustomPainter {
     final planetPaint = Paint()..color = Colors.brown;
     const planetRadius = 35.0;
     planetOrbitRadius = 200.0;
+    double plantetdistance = 0.5;
+    double plantespeed = 7;
     for (int i = 0; i < tabs.length; ++i) {
       canvas.drawCircle(
-          Offset(size.width / 2 + planetOrbitRadius * cos(animation.value),
-              size.height / 2 + planetOrbitRadius * sin(animation.value)),
+          Offset(size.width / 2 + planetOrbitRadius * cos(animation.value * plantespeed +plantetdistance),
+              size.height / 2 + planetOrbitRadius * sin(animation.value * plantespeed + plantetdistance)),
           planetRadius,
           planetPaint);
       textPainter.text = TextSpan(text: tabs[i]["Name"], style: textStyle);
@@ -146,10 +144,12 @@ class SolarSystemPainter extends CustomPainter {
           canvas,
           Offset(
               (size.width - textPainter.width) / 2 +
-                  planetOrbitRadius * cos(animation.value),
+                  planetOrbitRadius * cos(animation.value * plantespeed + plantetdistance),
               (size.height - textPainter.height) / 2 +
-                  planetOrbitRadius * sin(animation.value)));
+                  planetOrbitRadius * sin(animation.value * plantespeed + plantetdistance)));
       planetOrbitRadius += 100;
+      plantetdistance+=0.5;
+      plantespeed-=1;
     }
   }
 

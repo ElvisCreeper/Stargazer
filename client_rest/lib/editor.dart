@@ -9,7 +9,8 @@ class EditorPage extends StatelessWidget {
   String action, title = "", submitText = "";
   String? postText;
 
-  EditorPage(this.postId, this.userId, this.password, this.tabId, this.action, [String postTitle="", this.postText]) {
+  EditorPage(this.postId, this.userId, this.password, this.tabId, this.action,
+      [String postTitle = "", this.postText]) {
     switch (action) {
       case "post":
         title = "Create a post";
@@ -23,7 +24,7 @@ class EditorPage extends StatelessWidget {
       case "comment":
         title = "Create a comment";
         submitText = "REPLY";
-        
+
         break;
     }
   }
@@ -37,11 +38,12 @@ class EditorPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
       ),
-      bottomSheet: Container(
+      bottomSheet: SizedBox(
         height: 100,
+        width: double.infinity,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Divider(),
             TextButton(
                 onPressed: () {
                   switch (action) {
@@ -50,30 +52,44 @@ class EditorPage extends StatelessWidget {
                           userId, password, titleController.text, text, tabId));
                       break;
                     case "edit":
-                      controller.getText().then((text) => updatePost(
-                          userId, password, titleController.text, text, postId!));
+                      controller.getText().then((text) => updatePost(userId,
+                          password, titleController.text, text, postId!));
                       break;
                     case "comment":
                       controller.getText().then((text) => createComment(
-                          userId, password, titleController.text, text, tabId, postId!));
+                          userId,
+                          password,
+                          titleController.text,
+                          text,
+                          tabId,
+                          postId!));
                       break;
                   }
                 },
-                child: Text(submitText)),
+                child: Text(
+                  submitText,
+                  style: TextStyle(fontSize: 17),
+                )),
           ],
         ),
       ),
       body: Column(
         children: [
+          const SizedBox(
+            height: 30,
+          ),
           TextField(
               controller: titleController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Title',
                 labelText: 'Title',
                 border: OutlineInputBorder(),
               )),
+          SizedBox(
+            height: 30,
+          ),
           HtmlEditor(
-            htmlToolbarOptions: HtmlToolbarOptions(
+            htmlToolbarOptions: const HtmlToolbarOptions(
               toolbarType: ToolbarType.nativeExpandable,
               defaultToolbarButtons: [
                 StyleButtons(),
@@ -107,7 +123,7 @@ class EditorPage extends StatelessWidget {
               hint: "Your text here...",
               initialText: postText,
             ),
-            otherOptions: OtherOptions(
+            otherOptions: const OtherOptions(
               height: 400,
             ),
           ),

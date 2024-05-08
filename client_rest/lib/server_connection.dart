@@ -14,8 +14,6 @@ Future<dynamic> register(String username, String password) async {
     //encoding: Encoding.getByName('utf-8'),
     body: {"username": username, "password": password},
   );
-  print(response.statusCode);
-  print(response.body);
   switch (response.statusCode) {
     case 201:
       var responseJson = json.decode(response.body);
@@ -56,10 +54,8 @@ Future<dynamic> login(String username, String password) async {
 }
 
 Future<User?> getUser(int userId) async {
-  var response = await http.get(
-      Uri.http(ip, "social/api/users.php", {"userId": userId.toString()}));
-      print(response.statusCode);
-  print(response.body);
+  var response = await http
+      .get(Uri.http(ip, "social/api/users.php", {"userId": userId.toString()}));
   switch (response.statusCode) {
     case 200:
       var responseJson = json.decode(response.body);
@@ -74,8 +70,7 @@ Future<User?> getUser(int userId) async {
   return null;
 }
 
-updateUser(
-    int userId, String password, String username, String bio, String image) async {
+updateUser(int userId, String password, String username, String bio) async {
   var response = await http.put(
     Uri.http(ip, "/social/api/users.php").replace(
       queryParameters: {
@@ -83,12 +78,9 @@ updateUser(
         "password": password,
         "Username": username,
         "Bio": bio,
-        "Image": image
       },
     ),
   );
-  print(response.statusCode);
-  print(response.body);
 }
 
 Future<List> getSubjects() async {
@@ -101,54 +93,42 @@ Future<List> getSubjects() async {
 }
 
 Future<List> getTopics(int subjectId) async {
-  print("meow");
   var response = await http.get(Uri.http(
       ip, "social/api/topics.php", {"subjectId": subjectId.toString()}));
   switch (response.statusCode) {
     case 200:
-      print(response.body + "arf");
       return json.decode(response.body);
   }
-  print("woof");
   return [];
 }
 
 Future<List> getTabs(int topicId) async {
-  print("meow");
   var response = await http.get(
       Uri.http(ip, "social/api/tabs.php", {"topicId": topicId.toString()}));
   switch (response.statusCode) {
     case 200:
-      print(response.body + "arf");
       return json.decode(response.body);
   }
-  print("woof");
   return [];
 }
 
 Future<List> getPosts(int tabId, int userId) async {
-  print("meow");
   var response = await http.get(Uri.http(ip, "social/api/posts.php",
       {"tabId": tabId.toString(), "userId": userId.toString()}));
   switch (response.statusCode) {
     case 200:
-      print(response.body + "arf");
       return json.decode(response.body);
   }
-  print("woof");
   return [];
 }
 
 Future<List> getComments(int postId, int userId) async {
-  print("meow");
   var response = await http.get(Uri.http(ip, "social/api/comments.php",
       {"postId": postId.toString(), "userId": userId.toString()}));
   switch (response.statusCode) {
     case 200:
-      print(response.body + "arf");
       return json.decode(response.body);
   }
-  print("woof");
   return [];
 }
 
@@ -166,8 +146,6 @@ ratePost(int userId, String password, String action, int postId) async {
       "postId": postId.toString()
     },
   );
-  print(response.statusCode);
-  print(response.body);
 }
 
 createPost(
@@ -186,8 +164,6 @@ createPost(
       "tabId": tabId.toString()
     },
   );
-  print(response.statusCode);
-  print(response.body);
 }
 
 updatePost(
@@ -203,8 +179,6 @@ updatePost(
       },
     ),
   );
-  print(response.statusCode);
-  print(response.body);
 }
 
 deletePost(int userId, String password, int postId) async {
@@ -217,8 +191,6 @@ deletePost(int userId, String password, int postId) async {
       },
     ),
   );
-  print(response.statusCode);
-  print(response.body);
 }
 
 createComment(int userId, String password, String title, String text, int tabId,
@@ -238,6 +210,4 @@ createComment(int userId, String password, String title, String text, int tabId,
       "replyId": postId.toString()
     },
   );
-  print(response.statusCode);
-  print(response.body);
 }

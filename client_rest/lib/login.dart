@@ -1,34 +1,102 @@
-import 'package:client_rest/main.dart';
 import 'package:client_rest/server_connection.dart';
 import 'package:client_rest/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 var userListView = UserList();
 
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var _context = context;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text('Login'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    TextEditingController ipController =
+                        TextEditingController();
+                    ipController.text = ip;
+                    return AlertDialog(
+                      title: const Text("Settings:"),
+                      content: Column(
+                        children: [
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          TextField(
+                            controller: ipController,
+                            decoration: const InputDecoration(
+                              hintText: 'Server IP',
+                              labelText: 'Server IP',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          TextButton(
+                              onPressed: () {
+                                ip = ipController.text;
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Save"))
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+              icon: const Icon(Icons.settings))
+        ],
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Colors.white, Color.fromRGBO(17, 197, 250, 1)])
+                    .createShader(bounds),
+                child: const Text(
+                  "Welcome to Stargazer!",
+                  style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                ),
+              ),
+              ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Colors.white, Color.fromRGBO(17, 197, 250, 1)])
+                    .createShader(bounds),
+                child: const Text(
+                  "Start exploring the universe:",
+                  style: TextStyle(
+                      fontSize: 17, color: Color.fromRGBO(88, 215, 253, 1)),
+                ),
+              ),
               Card(
                 child:
                     Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  Title(color: Colors.black, child: Text("Select Account:")),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Title(
+                        color: Colors.black,
+                        child: const Text(
+                          "Select Account:",
+                          style: TextStyle(
+                            fontSize: 17,
+                          ),
+                        )),
+                  ),
                   SizedBox(height: 200, child: userListView),
-                  Divider(),
+                  const Divider(),
                   ListTile(
-                    leading: CircleAvatar(
+                    leading: const CircleAvatar(
                       child: Icon(Icons.add),
                     ),
-                    title: Text('Add User'),
+                    title: const Text('Add User'),
                     onTap: () {
                       Navigator.push(
                           context,
@@ -47,21 +115,24 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-
-class AuthPage extends StatelessWidget {
+class AuthPage extends ConsumerWidget {
   String password = "";
   String username = "";
+  var usernameErrorProvider = StateProvider<String?>((ref) => null);
+  var passwordErrorProvider = StateProvider<String?>((ref) => null);
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final usernameError = ref.watch(usernameErrorProvider);
+    final passwordError = ref.watch(passwordErrorProvider);
     var passwordController = TextEditingController();
     var usernameController = TextEditingController();
     return Scaffold(
         appBar: AppBar(
-          title: Text('Add User'),
+          title: const Text('Add User'),
         ),
         body: Center(
             child: Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -70,20 +141,22 @@ class AuthPage extends StatelessWidget {
                         decoration: InputDecoration(
                           hintText: 'Enter your username',
                           labelText: 'Username',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
+                          errorText: usernameError,
                         ),
                       ),
-                      SizedBox(height: 20.0),
+                      const SizedBox(height: 20.0),
                       TextField(
                         controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: 'Enter your password',
                           labelText: 'Password',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
+                          errorText: passwordError,
                         ),
                       ),
-                      SizedBox(height: 20.0),
+                      const SizedBox(height: 20.0),
                       ElevatedButton(
                         onPressed: () {
                           login(usernameController.text,
@@ -92,17 +165,34 @@ class AuthPage extends StatelessWidget {
                             if (value == null) {
                               Navigator.pop(context);
                             }
+                            if (value == "Wrong password") {
+                              ref.read(passwordErrorProvider.notifier).state =
+                                  "Wrong password";
+                            }
+                            if (value == "User does not exist") {
+                              ref.read(usernameErrorProvider.notifier).state =
+                                  "User does not exist";
+                            }
                           });
                         },
-                        child: Text('Login'),
+                        child: const Text('Login'),
                       ),
-                      SizedBox(height: 10.0),
+                      const SizedBox(height: 10.0),
                       TextButton(
                         onPressed: () {
-                          register(
-                              usernameController.text, passwordController.text);
+                          register(usernameController.text,
+                                  passwordController.text)
+                              .then((value) {
+                            if (value == null) {
+                              Navigator.pop(context);
+                            }
+                            if (value == "Username already taken") {
+                              ref.read(usernameErrorProvider.notifier).state =
+                                  "Username already taken";
+                            }
+                          });
                         },
-                        child: Text('Register'),
+                        child: const Text('Register'),
                       ),
                     ]))));
   }

@@ -1,5 +1,4 @@
 import 'package:client_rest/login.dart';
-import 'package:client_rest/editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'model.dart';
@@ -22,6 +21,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: LoginPage());
+    return MaterialApp(home: LoginPage(),
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData.from(colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromRGBO(17, 197, 250, 1),
+    background: const Color.fromARGB(255, 50, 50, 50),
+    brightness: Brightness.dark)));
   }
 }
